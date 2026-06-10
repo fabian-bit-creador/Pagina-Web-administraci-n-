@@ -1,0 +1,20 @@
+# ============================================================
+# Configuración de Netlify
+# ============================================================
+# Este sitio es estático (HTML/CSS/JS puro): no necesita proceso
+# de construcción. Netlify lee este archivo automáticamente y
+# publica la carpeta raíz del proyecto tal cual.
+# No necesitas editar nada aquí.
+# ============================================================
+
+[build]
+  # Carpeta a publicar: la raíz del repositorio (donde está index.html)
+  publish = "."
+
+# Encabezados de seguridad básicos para todas las páginas
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
