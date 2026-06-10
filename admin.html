@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!-- ============================================================
+     PANEL DE ADMINISTRACIÓN (solo para el/la docente)
+     ============================================================
+     Desde aquí puedes, SIN tocar código:
+     - Cambiar los textos generales del portal
+     - Agregar, editar y eliminar AVISOS
+     - Agregar, editar y eliminar ASIGNATURAS
+     - Agregar recursos (guías, enlaces, archivos de Drive),
+       tareas y fechas importantes a cada asignatura
+
+     IMPORTANTE — cómo se guardan los cambios:
+     1. "Guardar cambios" los guarda EN ESTE NAVEGADOR (vista previa
+        inmediata, solo tú los ves).
+     2. "Descargar datos.js" genera el archivo definitivo. Para
+        publicar los cambios a tus estudiantes, reemplaza el archivo
+        js/datos.js de tu proyecto por el descargado y sube el sitio
+        de nuevo (en GitHub Pages: subir el archivo y listo).
+
+     La clave de acceso se define al inicio de js/admin.js.
+     NOTA: en un sitio estático esta clave solo evita ediciones
+     accidentales; no es seguridad real (los datos del portal son
+     públicos de todas formas). La versión 2 con base de datos
+     tendrá inicio de sesión verdadero.
+     ============================================================ -->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Panel docente — Portal TP Administración</title>
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔧</text></svg>">
+</head>
+<body>
+
+  <header class="encabezado admin-encabezado">
+    <div class="contenedor encabezado__interior">
+      <a href="index.html" class="marca">
+        <span class="marca__icono" aria-hidden="true">🔧</span>
+        <span class="marca__texto">Panel docente</span>
+      </a>
+      <nav class="navegacion" aria-label="Navegación del panel">
+        <a href="index.html">← Ver el portal</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- js/admin.js dibuja aquí todo el panel -->
+  <main id="panel-admin" class="contenedor" style="padding-top:24px; padding-bottom:48px;"></main>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <p>Panel de administración · Los cambios se publican reemplazando js/datos.js (ver instrucciones arriba de cada sección).</p>
+    </div>
+  </footer>
+
+  <script src="js/datos.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
