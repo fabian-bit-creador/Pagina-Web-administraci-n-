@@ -32,10 +32,16 @@
   /* ----------------------------------------------------------
      UTILIDADES
      ---------------------------------------------------------- */
+  // Evita que textos con < > o comillas rompan el HTML.
+  // Importante: aquí los textos se insertan dentro de value="..."
+  // de los formularios, por eso también se escapan las comillas.
   function escapar(texto) {
-    const div = document.createElement("div");
-    div.textContent = String(texto == null ? "" : texto);
-    return div.innerHTML;
+    return String(texto == null ? "" : texto)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
   // Guarda la copia de trabajo en el navegador y avisa al usuario
@@ -199,7 +205,7 @@
             </div>
             <div class="fila-doble">
               <div><label>Color de la tarjeta</label><input name="color" type="color" value="#2563eb"></div>
-              <div><label>Enlace a su carpeta de Drive</label><input name="drive" placeholder="https://drive.google.com/..."></div>
+              <div><label>Tu carpeta de Drive (referencia interna, los estudiantes no la ven)</label><input name="drive" placeholder="https://drive.google.com/..."></div>
             </div>
             <div><label>Descripción breve (1 o 2 frases simples)</label><textarea name="descripcion"></textarea></div>
             <button class="boton-admin boton-admin--verde" type="submit">Crear asignatura</button>
@@ -232,7 +238,7 @@
         </div>
         <div class="fila-doble">
           <div><label>Color</label><input name="color" type="color" value="${escapar(a.color)}"></div>
-          <div><label>Carpeta de Drive</label><input name="drive" value="${escapar(a.drive)}"></div>
+          <div><label>Tu carpeta de Drive (referencia interna, los estudiantes no la ven)</label><input name="drive" value="${escapar(a.drive)}"></div>
         </div>
         <div><label>Descripción breve</label><textarea name="descripcion">${escapar(a.descripcion)}</textarea></div>
         <div class="acciones-admin">
@@ -528,8 +534,12 @@
   }
 
   /* ----------------------------------------------------------
-     ARRANQUE: pide la clave una vez por pestaña
+     ARRANQUE: aplica el tema guardado y pide la clave
+     (una vez por pestaña)
      ---------------------------------------------------------- */
+  if (localStorage.getItem("portal_tema") === "oscuro") {
+    document.documentElement.setAttribute("data-tema", "oscuro");
+  }
   if (sessionStorage.getItem("portal_admin") === "si") {
     dibujar();
   } else {

@@ -1,0 +1,20 @@
+CARPETA DE IMÁGENES DEL PORTAL
+==============================
+
+Sube aquí los logos con estos nombres EXACTOS (en minúsculas):
+
+  logo-colegio.png   → escudo del Colegio Cardenal Caro (Fundación Belén Educa)
+  logo-tp.png        → logo TP "Técnicos Profesionales de Excelencia"
+
+Cómo subirlos desde GitHub (sin instalar nada):
+  1. Entra a la carpeta "img" del repositorio en GitHub.
+  2. Botón "Add file" → "Upload files".
+  3. Arrastra las dos imágenes y presiona "Commit changes".
+
+Recomendaciones:
+  - Formato PNG con fondo transparente si es posible.
+  - Tamaño sugerido: entre 200x200 y 500x500 píxeles (se muestran pequeños).
+  - Si los archivos no están, el portal funciona igual: simplemente
+    no muestra los logos (no aparece ningún error).
+
+También puedes guardar aquí otras imágenes que quieras usar en el sitio.

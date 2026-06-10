@@ -28,7 +28,14 @@
   <header class="encabezado">
     <div class="contenedor encabezado__interior">
       <a href="#/inicio" class="marca" aria-label="Ir al inicio">
-        <span class="marca__icono" aria-hidden="true">📚</span>
+        <!-- LOGOS DEL COLEGIO Y DEL TP:
+             Sube tus imágenes a la carpeta img/ con estos nombres exactos:
+               img/logo-colegio.png   (escudo Colegio Cardenal Caro)
+               img/logo-tp.png        (logo Técnicos Profesionales de Excelencia)
+             Si los archivos no existen, los logos simplemente no se muestran
+             (gracias al onerror) y el sitio sigue funcionando normal. -->
+        <img class="marca__logo" src="img/logo-colegio.png" alt="Colegio Cardenal Caro" onerror="this.style.display='none'">
+        <img class="marca__logo" src="img/logo-tp.png" alt="Técnicos Profesionales de Excelencia — Fundación Belén Educa" onerror="this.style.display='none'">
         <span class="marca__texto" id="marca-nombre">Portal TP Administración</span>
       </a>
 

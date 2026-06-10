@@ -85,8 +85,26 @@ Abre `js/datos.js`. Está comentado paso a paso. Resumen:
 | **Colores** | `css/estilos.css` → variables del primer bloque (`--color-principal`, etc.) |
 | Textos fijos de los menús | `index.html` (etiquetas del `<nav>`) |
 
-**Para enlazar un archivo de Drive:** clic derecho sobre el archivo → Compartir →
+**Para publicar un archivo de Drive:** clic derecho sobre el archivo → Compartir →
 "Cualquier persona con el enlace puede ver" → Copiar enlace → pégalo en el campo `url`.
+
+> 🔒 **Política de recursos:** los estudiantes **nunca ven tus carpetas de Drive**;
+> solo ven los archivos individuales que tú publicas como recursos. Los campos
+> "carpeta de Drive" del panel son solo una referencia interna para ti.
+
+## 🖼️ Logos del colegio y del TP
+
+El encabezado muestra el escudo del colegio y el logo TP si subes estas
+imágenes a la carpeta `img/`:
+
+| Archivo | Contenido |
+|---|---|
+| `img/logo-colegio.png` | Escudo Colegio Cardenal Caro |
+| `img/logo-tp.png` | Logo "Técnicos Profesionales de Excelencia" |
+
+Desde GitHub: entra a la carpeta `img` → **Add file → Upload files** → arrastra
+las imágenes → **Commit changes**. Si los archivos no existen, el sitio funciona
+igual (los logos simplemente no se muestran).
 
 ## 🌐 Cómo publicarla gratis
 
@@ -112,7 +130,8 @@ Abre `js/datos.js`. Está comentado paso a paso. Resumen:
 ## 🔮 Ideas para la versión 2
 
 1. **Base de datos real** (Firebase/Supabase, ambos con plan gratuito): el panel guardaría directo en línea, sin descargar `datos.js`. El proyecto ya está preparado: solo hay que reemplazar la función `obtenerDatos()` por una llamada a la API.
-2. **Inicio de sesión real para el docente** (y quizás para estudiantes).
+2. **Inicio de sesión real para el docente y los estudiantes** (con el correo institucional @beleneduca.cl vía Google).
+3. **Perfil de estudiante**: progreso por asignatura (materiales vistos, tareas entregadas), personalización (avatar, tema) y **encuestas** del docente con resultados agrupados. Requiere los puntos 1 y 2.
 3. **Entrega de tareas en línea** con confirmación y estado (entregada/atrasada).
 4. **Notificaciones**: correo o WhatsApp/Telegram cuando hay aviso nuevo.
 5. **Estadísticas simples**: qué materiales se abren más.

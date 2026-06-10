@@ -27,11 +27,16 @@
      UTILIDADES PEQUEÑAS
      ---------------------------------------------------------- */
 
-  // Evita que textos con < o > rompan el HTML (seguridad básica)
+  // Evita que textos con < > o comillas rompan el HTML (seguridad básica).
+  // Las comillas también se escapan porque estos textos se usan dentro
+  // de atributos como href="..." y value="...".
   function escapar(texto) {
-    const div = document.createElement("div");
-    div.textContent = String(texto == null ? "" : texto);
-    return div.innerHTML;
+    return String(texto == null ? "" : texto)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
   // Convierte "2026-06-09" en "9 de junio de 2026" (más amigable)
@@ -83,7 +88,7 @@
         <p>${escapar(s.bienvenidaTexto)}</p>
         <div class="acciones">
           <a class="boton" href="#/calendario">📅 Ver calendario de evaluaciones</a>
-          ${s.driveGeneral ? `<a class="boton boton--secundario" href="${escapar(s.driveGeneral)}" target="_blank" rel="noopener">📁 Carpeta general en Drive</a>` : ""}
+          <a class="boton boton--secundario" href="#/avisos">📢 Ver avisos</a>
         </div>
       </section>`;
 
@@ -160,11 +165,12 @@
     let html = `
       <a class="volver" href="#/inicio">← Volver al inicio</a>
 
+      <!-- Nota: las carpetas de Drive NO se muestran a los estudiantes.
+           Ellos solo ven los recursos individuales que el docente publica. -->
       <header class="cabecera-asignatura" style="border-top-color:${escapar(a.color)}">
         <span class="nivel">${escapar(a.nivel)} · ${escapar(a.sigla)}</span>
         <h1>${escapar(a.icono)} ${escapar(a.nombre)}</h1>
         <p>${escapar(a.descripcion)}</p>
-        ${a.drive ? `<a class="boton-admin" style="text-decoration:none" href="${escapar(a.drive)}" target="_blank" rel="noopener">📁 Abrir carpeta en Drive</a>` : ""}
       </header>`;
 
     // --- Unidades ---
@@ -402,6 +408,10 @@
      ENRUTADOR: decide qué pantalla dibujar según el hash
      ---------------------------------------------------------- */
   function enrutar() {
+    // Las anclas normales (como #contenido, del enlace "saltar al
+    // contenido") no son rutas: se dejan pasar sin redibujar nada.
+    if (location.hash && location.hash.charAt(1) !== "/") return;
+
     // Partes de la dirección: #/asignatura/gct/guia → ["asignatura","gct","guia"]
     const partes = location.hash.replace(/^#\/?/, "").split("/");
     const ruta = partes[0] || "inicio";

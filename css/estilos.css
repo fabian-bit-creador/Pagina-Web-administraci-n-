@@ -101,6 +101,16 @@ select:focus-visible, textarea:focus-visible {
 }
 .marca__icono { font-size: 1.6rem; }
 
+/* Logos del colegio y del TP en el encabezado.
+   Fondo blanco circular para que se vean bien sobre la barra de color. */
+.marca__logo {
+  height: 44px; width: 44px; object-fit: contain;
+  background: #fff; border-radius: 50%; padding: 3px;
+}
+@media (max-width: 720px) {
+  .marca__logo { height: 36px; width: 36px; }
+}
+
 .navegacion { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .navegacion a {
   color: #fff; text-decoration: none; padding: 8px 12px;
@@ -302,6 +312,10 @@ details.faq p { color: var(--color-texto-suave); margin: 10px 0 0; }
    PANEL DE ADMINISTRACIÓN (admin.html)
    ============================================================ */
 .admin-encabezado { background: #111827; }
+
+/* El panel no tiene botón ☰, así que su menú se muestra siempre,
+   también en celulares (anula la regla responsive de .navegacion). */
+.admin-encabezado .navegacion { display: flex !important; flex-direction: row; width: auto; }
 
 .panel {
   background: var(--color-tarjeta); border-radius: var(--radio);

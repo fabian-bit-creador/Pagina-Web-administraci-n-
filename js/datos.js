@@ -31,7 +31,9 @@ const DATOS = {
     anio: 2026,
     bienvenidaTitulo: "¡Bienvenidos y bienvenidas al portal de la especialidad!",
     bienvenidaTexto: "Aquí encontrarás los materiales de clases, guías, tareas, fechas de evaluación y recursos de apoyo de cada módulo. Usa el buscador o entra directo a tu asignatura.",
-    // Carpeta general de Drive con todo el material del año (botón en el inicio)
+    // Carpeta general de Drive: SOLO referencia para el docente.
+    // Los estudiantes NUNCA ven este enlace ni las carpetas; solo ven
+    // los recursos individuales que tú publicas en cada asignatura.
     driveGeneral: "https://drive.google.com/drive/folders/1KR2WVKgBMO7EEByggNkKg5bYcG_P7tGj"
   },
 
@@ -75,9 +77,14 @@ const DATOS = {
      - icono:   un emoji para la tarjeta
      - color:   color de la tarjeta (puedes usar nombres o códigos #)
      - descripcion: 1 o 2 frases simples sobre qué se aprende
-     - drive:   enlace a la carpeta de Drive de la asignatura
+     - drive:   enlace a TU carpeta de Drive (solo referencia interna
+                para ti; los estudiantes NO la ven)
      - unidades: lista de unidades con número, título y descripción
-     - recursos: guías, presentaciones, evaluaciones y enlaces
+     - recursos: guías, presentaciones, evaluaciones y enlaces.
+                IMPORTANTE: publica archivos INDIVIDUALES de Drive
+                (clic derecho → Compartir → "Cualquier persona con el
+                enlace puede ver" → copiar enlace). Así controlas
+                exactamente qué ven los estudiantes.
      - tareas:   actividades con fecha de entrega
      - fechas:   fechas importantes (aparecen también en el Calendario)
 
@@ -101,7 +108,6 @@ const DATOS = {
         { numero: 2, titulo: "Registros comerciales en hojas de cálculo", descripcion: "Registrar compras y ventas en planillas, calcular IVA y construir el libro de compras y ventas de una empresa." }
       ],
       recursos: [
-        { titulo: "Carpeta Unidad 1 (todo el material)", tipo: "enlace", unidad: 1, fecha: "2026-04-26", url: "https://drive.google.com/drive/folders/174pBMtu10F93TvFZMhRqksWl3AC7X7-j", descripcion: "Todas las clases y guías de la Unidad 1 en Drive." },
         { titulo: "Clase 2.6 · Guía práctica: Libro de compra y venta", tipo: "guia", unidad: 2, fecha: "2026-05-11", url: "https://docs.google.com/document/d/1jI6Mx8FVlgnuKxqBVANf5jtUt1qwSoNHwqSTJLaaT7Y/edit", descripcion: "Guía paso a paso para registrar compras y ventas." },
         { titulo: "Clase 2.7 · Presentación", tipo: "presentacion", unidad: 2, fecha: "2026-05-18", url: "https://docs.google.com/presentation/d/1DbmnJuMlezYtvL4hSkaPCHi7i6WQQyAYYeRDMZTvhAQ/edit", descripcion: "Diapositivas de la clase 2.7 sobre registros comerciales." },
         { titulo: "Clase 2.11 · Guía práctica en Hojas de Cálculo", tipo: "guia", unidad: 2, fecha: "2026-06-01", url: "https://docs.google.com/document/d/1Xp77v8G0iXTlOdFdMSLcalXtJshJ33Es7yyPdwq41G4/edit", descripcion: "Ejercicios de fórmulas y funciones aplicadas a registros comerciales." },
@@ -131,10 +137,9 @@ const DATOS = {
         { numero: 1, titulo: "Fundamentos de la información contable", descripcion: "Qué es la contabilidad, para qué sirve y cuáles son sus conceptos básicos: activo, pasivo y patrimonio." },
         { numero: 2, titulo: "Registros contables básicos", descripcion: "Registrar operaciones simples y leer informes contables sencillos." }
       ],
-      recursos: [
-        { titulo: "Carpeta Unidad 1 (todo el material)", tipo: "enlace", unidad: 1, fecha: "2026-04-26", url: "https://drive.google.com/drive/folders/14DVYKo-6y0AIbd17z8tClwdE4mbulvZO", descripcion: "Material completo de la Unidad 1 en Drive." },
-        { titulo: "Carpeta Unidad 2 (todo el material)", tipo: "enlace", unidad: 2, fecha: "2026-04-13", url: "https://drive.google.com/drive/folders/1uPVj3mMhDkwa0ZYatWUrCu3Y0dv0W_Uu", descripcion: "Material completo de la Unidad 2 en Drive." }
-      ],
+      // Agrega aquí los archivos individuales que quieras publicar
+      // (desde admin.html o copiando el formato de los recursos de GCT).
+      recursos: [],
       tareas: [],
       fechas: []
     },
@@ -152,9 +157,7 @@ const DATOS = {
         { numero: 1, titulo: "Comunicación y servicio al cliente", descripcion: "Técnicas de comunicación efectiva y protocolos de atención." },
         { numero: 2, titulo: "Manejo de situaciones difíciles", descripcion: "Resolver reclamos y entregar soluciones manteniendo una buena relación con el cliente." }
       ],
-      recursos: [
-        { titulo: "Carpeta de la asignatura en Drive", tipo: "enlace", unidad: 1, fecha: "2026-03-03", url: "https://drive.google.com/drive/folders/18qao_GfuwYk1me9jE98Vj5ULVKfv09_x", descripcion: "Todas las clases y guías de Atención de Clientes." }
-      ],
+      recursos: [],
       tareas: [],
       fechas: []
     },
@@ -172,9 +175,7 @@ const DATOS = {
         { numero: 1, titulo: "Organización del espacio y los documentos", descripcion: "Sistemas de archivo, orden documental y ergonomía básica." },
         { numero: 2, titulo: "Gestión de recursos de oficina", descripcion: "Control de materiales, correspondencia y agenda." }
       ],
-      recursos: [
-        { titulo: "Carpeta de la asignatura en Drive", tipo: "enlace", unidad: 1, fecha: "2026-03-03", url: "https://drive.google.com/drive/folders/1CfOfja0xXQvNy8igeuxXFbkXv2Yxh5Np", descripcion: "Todas las clases y guías de Organización de Oficinas." }
-      ],
+      recursos: [],
       tareas: [],
       fechas: []
     },
@@ -192,9 +193,7 @@ const DATOS = {
         { numero: 1, titulo: "La empresa y sus procesos", descripcion: "Tipos de empresa, áreas funcionales y flujos de trabajo." },
         { numero: 2, titulo: "Apoyo a los procesos administrativos", descripcion: "Elaborar y tramitar documentos que apoyan los procesos de la empresa." }
       ],
-      recursos: [
-        { titulo: "Carpeta de la asignatura en Drive", tipo: "enlace", unidad: 1, fecha: "2026-03-03", url: "https://drive.google.com/drive/folders/1X3QOMDKBeLnWm_Wr3AvCNaYNhv1ayCNM", descripcion: "Todas las clases y guías de Procesos Administrativos." }
-      ],
+      recursos: [],
       tareas: [],
       fechas: []
     },
@@ -212,9 +211,7 @@ const DATOS = {
         { numero: 1, titulo: "Herramientas de productividad", descripcion: "Documentos, planillas y presentaciones aplicadas a la oficina." },
         { numero: 2, titulo: "Gestión de información digital", descripcion: "Organizar archivos en la nube y trabajar de forma colaborativa." }
       ],
-      recursos: [
-        { titulo: "Carpeta de la asignatura en Drive", tipo: "enlace", unidad: 1, fecha: "2026-03-03", url: "https://drive.google.com/drive/folders/1UMdwtQjH-y86R9MqgHVKvEN8-6wSj8y-", descripcion: "Todas las clases y guías de AIGA." }
-      ],
+      recursos: [],
       tareas: [],
       fechas: []
     },
@@ -233,9 +230,7 @@ const DATOS = {
         { numero: 1, titulo: "Mi proyecto laboral", descripcion: "Currículum, carta de presentación y preparación de entrevistas." },
         { numero: 2, titulo: "Emprender una idea", descripcion: "Detectar oportunidades y armar un plan simple de emprendimiento." }
       ],
-      recursos: [
-        { titulo: "Carpeta de la asignatura en Drive", tipo: "enlace", unidad: 1, fecha: "2025-12-29", url: "https://drive.google.com/drive/folders/1jEbQMGPPuh6S6xYc7y7WLhw3Qad2Ugah", descripcion: "Todas las clases y guías de Emprendimiento y Empleabilidad." }
-      ],
+      recursos: [],
       tareas: [],
       fechas: []
     },
@@ -253,9 +248,7 @@ const DATOS = {
         { numero: 1, titulo: "El contrato de trabajo", descripcion: "Tipos de contrato, cláusulas y obligaciones de las partes." },
         { numero: 2, titulo: "Término de la relación laboral", descripcion: "Causales de despido, finiquito y protección de derechos." }
       ],
-      recursos: [
-        { titulo: "Carpeta de la asignatura en Drive", tipo: "enlace", unidad: 1, fecha: "2026-03-03", url: "https://drive.google.com/drive/folders/1HYcWXzv3sI2yoBzIIeZM3cd7wH4IrFy7", descripcion: "Todas las clases y guías de Legislación Laboral." }
-      ],
+      recursos: [],
       tareas: [],
       fechas: []
     },
@@ -273,9 +266,7 @@ const DATOS = {
         { numero: 1, titulo: "Reclutamiento y selección", descripcion: "Publicar ofertas, revisar postulaciones y apoyar entrevistas." },
         { numero: 2, titulo: "Contratación e inducción", descripcion: "Documentos de contratación e incorporación de nuevas personas." }
       ],
-      recursos: [
-        { titulo: "Carpeta de la asignatura en Drive", tipo: "enlace", unidad: 1, fecha: "2026-03-03", url: "https://drive.google.com/drive/folders/1wiVjWbhzsQOzuImEXxeKTTKpWyFlJoIP", descripcion: "Todas las clases y guías de Dotación de Personal." }
-      ],
+      recursos: [],
       tareas: [],
       fechas: []
     },
@@ -293,9 +284,7 @@ const DATOS = {
         { numero: 1, titulo: "Capacitación y desarrollo", descripcion: "Detectar necesidades de capacitación y apoyar su organización." },
         { numero: 2, titulo: "Bienestar y clima laboral", descripcion: "Beneficios, prevención de riesgos y buen ambiente de trabajo." }
       ],
-      recursos: [
-        { titulo: "Carpeta de la asignatura en Drive", tipo: "enlace", unidad: 1, fecha: "2026-03-03", url: "https://drive.google.com/drive/folders/1ShgT1BXsJ59Jdi2gs0wLL5rsnHeDEQDC", descripcion: "Todas las clases y guías de Desarrollo y Bienestar del Personal." }
-      ],
+      recursos: [],
       tareas: [],
       fechas: []
     },
@@ -313,9 +302,7 @@ const DATOS = {
         { numero: 1, titulo: "Remuneraciones y descuentos legales", descripcion: "Sueldo base, gratificación, AFP, salud y cálculo de líquido a pagar." },
         { numero: 2, titulo: "Finiquitos y obligaciones laborales", descripcion: "Cálculo de finiquitos, cotizaciones y obligaciones del empleador." }
       ],
-      recursos: [
-        { titulo: "Carpeta de la asignatura en Drive", tipo: "enlace", unidad: 1, fecha: "2026-03-03", url: "https://drive.google.com/drive/folders/15sUDzHYcRKMj75rxdppJUu13RXhXWYzT", descripcion: "Todas las clases y guías de Cálculo de Remuneraciones." }
-      ],
+      recursos: [],
       tareas: [],
       fechas: []
     }
@@ -328,7 +315,7 @@ const DATOS = {
   preguntasFrecuentes: [
     {
       pregunta: "¿Dónde encuentro el material de una clase a la que falté?",
-      respuesta: "Entra a la asignatura, busca la unidad correspondiente y revisa los recursos ordenados por fecha. También puedes abrir la carpeta de Drive de la asignatura, donde está todo el material."
+      respuesta: "Entra a la asignatura y revisa la sección 'Materiales y recursos': están ordenados del más reciente al más antiguo y puedes filtrarlos por tipo. Si no encuentras el material de esa clase, pídeselo al profesor."
     },
     {
       pregunta: "¿Cómo entrego una tarea?",
