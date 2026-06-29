@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<!-- ============================================================
+     MAVIMUEBLES — Cotizador de muebles a medida
+     ============================================================
+     CÓMO FUNCIONA (resumen rápido):
+     - Precios, herrajes y plantillas por defecto  →  js/datos.js
+     - La fórmula de cálculo                        →  js/calculo.js
+     - La aplicación (pantallas y botones)          →  js/app.js
+     - Colores y estilos                            →  css/estilos.css
+     Todo lo que edites dentro de la app se guarda en tu navegador.
+     No necesita instalar nada: se abre con doble clic.
+     ============================================================ -->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cotizador profesional de muebles a medida — Mavimuebles.">
+  <title>Mavimuebles · Cotizador</title>
+  <link rel="stylesheet" href="css/estilos.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪑</text></svg>">
+</head>
+<body>
+
+  <!-- ===== ENCABEZADO ===== -->
+  <header class="cab">
+    <div class="cab__marca">
+      <span class="cab__logo">🪑</span>
+      <div>
+        <strong class="cab__nombre" id="cabNombre">Mavimuebles</strong>
+        <span class="cab__eslogan" id="cabEslogan">Muebles a medida</span>
+      </div>
+    </div>
+    <nav class="cab__nav" id="nav">
+      <button class="tab" data-vista="inicio">Inicio</button>
+      <button class="tab tab--activa" data-vista="cotizar">Cotizar</button>
+      <button class="tab" data-vista="historial">Historial</button>
+      <button class="tab" data-vista="bases">Bases</button>
+      <button class="tab" data-vista="ajustes">Ajustes</button>
+    </nav>
+  </header>
+
+  <main class="app">
+
+    <!-- ============ VISTA: INICIO / PANEL ============ -->
+    <section class="vista" id="vista-inicio" hidden>
+      <h1>Bienvenido a <span class="acento">Mavimuebles</span></h1>
+      <p class="sub">Calculadora y cotizador de muebles a medida. Presupuesta rápido, ordenado y sin perder plata.</p>
+
+      <div class="tarjetas" id="panelResumen"><!-- tarjetas de resumen (JS) --></div>
+
+      <div class="acciones-rapidas">
+        <button class="btn btn--primario" data-vista="cotizar">+ Nueva cotización</button>
+        <button class="btn" data-vista="historial">Ver historial</button>
+      </div>
+
+      <div class="panel">
+        <h3>Cotizaciones recientes</h3>
+        <div id="panelRecientes"><!-- JS --></div>
+      </div>
+    </section>
+
+    <!-- ============ VISTA: COTIZAR ============ -->
+    <section class="vista" id="vista-cotizar">
+      <div class="cotizar-cabecera">
+        <h1 id="tituloCotizar">Nueva cotización</h1>
+        <input type="hidden" id="cotId">
+        <span class="pill" id="estadoActual" hidden></span>
+      </div>
+
+      <div class="grid-cotizar">
+        <!-- Columna izquierda: formularios -->
+        <div class="col-form">
+
+          <!-- Datos del cliente -->
+          <fieldset class="bloque">
+            <legend>1 · Datos del cliente</legend>
+            <div class="campos">
+              <label>Nombre<input id="cliNombre" placeholder="Nombre del cliente"></label>
+              <label>Teléfono<input id="cliTelefono" placeholder="+56 9 ..."></label>
+              <label>Correo<input id="cliCorreo" placeholder="correo@ejemplo.cl"></label>
+              <label>Dirección<input id="cliDireccion" placeholder="Dirección / comuna"></label>
+              <label class="ancho-total">Observaciones del cliente
+                <textarea id="cliObs" rows="2" placeholder="Notas, referencias, etc."></textarea>
+              </label>
+            </div>
+          </fieldset>
+
+          <!-- Datos del proyecto -->
+          <fieldset class="bloque">
+            <legend>2 · Proyecto</legend>
+            <div class="campos">
+              <label>Tipo de mueble
+                <select id="proTipo"></select>
+              </label>
+              <label>Cantidad<input id="proCantidad" type="number" min="1" value="1"></label>
+              <label class="ancho-total">Descripción del trabajo
+                <textarea id="proDesc" rows="2" placeholder="Ej: Clóset 2 puertas con cajonera y barra de colgar"></textarea>
+              </label>
+              <label>Alto (cm)<input id="proAlto" type="number" min="0" placeholder="200"></label>
+              <label>Ancho (cm)<input id="proAncho" type="number" min="0" placeholder="120"></label>
+              <label>Profundidad (cm)<input id="proProf" type="number" min="0" placeholder="55"></label>
+              <label>Material principal
+                <select id="proMaterial"></select>
+              </label>
+              <label>Color / terminación<input id="proColor" placeholder="Ej: Blanco / Roble"></label>
+              <label>Dificultad
+                <select id="proDificultad"></select>
+              </label>
+              <label class="check">Requiere instalación
+                <input id="proInstalacion" type="checkbox" checked>
+              </label>
+              <label class="check">Requiere despacho
+                <input id="proDespacho" type="checkbox">
+              </label>
+            </div>
+            <button class="btn btn--mini" id="btnPlantilla" type="button">⚡ Autocompletar desde plantilla</button>
+          </fieldset>
+
+          <!-- Materiales -->
+          <fieldset class="bloque">
+            <legend>3 · Materiales</legend>
+            <div class="lineas" id="lineasMateriales"></div>
+            <div class="linea-acciones">
+              <button class="btn btn--mini" id="btnAddMaterial" type="button">+ Agregar material</button>
+              <button class="btn btn--mini" id="btnSugerirM2" type="button">📐 Estimar m² del mueble</button>
+            </div>
+          </fieldset>
+
+          <!-- Herrajes -->
+          <fieldset class="bloque">
+            <legend>4 · Herrajes y accesorios</legend>
+            <div class="lineas" id="lineasHerrajes"></div>
+            <button class="btn btn--mini" id="btnAddHerraje" type="button">+ Agregar herraje</button>
+          </fieldset>
+
+          <!-- Mano de obra y costos -->
+          <fieldset class="bloque">
+            <legend>5 · Mano de obra y costos</legend>
+            <div class="campos">
+              <label>Horas de diseño<input id="hDiseno" type="number" min="0" step="0.5" value="0"></label>
+              <label>Horas de fabricación<input id="hFab" type="number" min="0" step="0.5" value="0"></label>
+              <label>Horas de instalación<input id="hInst" type="number" min="0" step="0.5" value="0"></label>
+              <label>Valor hora<input id="valorHora" type="number" min="0" step="500"></label>
+              <label>Despacho / traslado<input id="costoDespacho" type="number" min="0" value="0"></label>
+              <label>Otros costos<input id="costoOtros" type="number" min="0" value="0"></label>
+            </div>
+          </fieldset>
+
+          <!-- Parámetros de la fórmula -->
+          <fieldset class="bloque">
+            <legend>6 · Parámetros del presupuesto</legend>
+            <div class="campos">
+              <label>Merma %<input id="parMerma" type="number" min="0" step="1"></label>
+              <label>Gastos generales %<input id="parIndirectos" type="number" min="0" step="1"></label>
+              <label>Imprevistos %<input id="parImprevistos" type="number" min="0" step="1"></label>
+              <label>Margen de ganancia %<input id="parMargen" type="number" min="0" max="95" step="1"></label>
+              <label>Descuento %<input id="parDescuento" type="number" min="0" max="100" step="1"></label>
+              <label class="check">Aplicar IVA
+                <input id="parIvaActivo" type="checkbox">
+              </label>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Columna derecha: desglose en vivo -->
+        <aside class="col-resultado">
+          <div class="resultado sticky" id="desglose"><!-- JS --></div>
+          <div class="resultado-acciones">
+            <button class="btn btn--primario btn--bloque" id="btnGuardar" type="button">💾 Guardar cotización</button>
+            <button class="btn btn--bloque" id="btnImprimir" type="button">🖨️ Ver / Descargar PDF</button>
+            <button class="btn btn--bloque btn--ligero" id="btnNueva" type="button">＋ Limpiar y empezar otra</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============ VISTA: HISTORIAL ============ -->
+    <section class="vista" id="vista-historial" hidden>
+      <h1>Historial de cotizaciones</h1>
+      <div class="filtros" id="filtrosEstado"></div>
+      <div id="listaHistorial"><!-- JS --></div>
+    </section>
+
+    <!-- ============ VISTA: BASES ============ -->
+    <section class="vista" id="vista-bases" hidden>
+      <h1>Bases de datos</h1>
+      <p class="sub">Edita aquí tus materiales, herrajes y plantillas. Los cambios se guardan en tu navegador.</p>
+
+      <div class="panel">
+        <h3>📦 Materiales</h3>
+        <div id="tablaMateriales"></div>
+        <button class="btn btn--mini" id="btnAddBaseMaterial" type="button">+ Agregar material</button>
+      </div>
+
+      <div class="panel">
+        <h3>🔩 Herrajes y accesorios</h3>
+        <div id="tablaHerrajes"></div>
+        <button class="btn btn--mini" id="btnAddBaseHerraje" type="button">+ Agregar herraje</button>
+      </div>
+
+      <div class="panel">
+        <h3>📐 Plantillas por tipo de mueble</h3>
+        <div id="tablaPlantillas"></div>
+      </div>
+    </section>
+
+    <!-- ============ VISTA: AJUSTES ============ -->
+    <section class="vista" id="vista-ajustes" hidden>
+      <h1>Ajustes</h1>
+
+      <div class="panel">
+        <h3>🏷️ Datos del negocio (salen en la cotización)</h3>
+        <div class="campos">
+          <label>Nombre<input id="setNombre"></label>
+          <label>Eslogan<input id="setEslogan"></label>
+          <label>Teléfono<input id="setTelefono"></label>
+          <label>Correo<input id="setCorreo"></label>
+          <label>Dirección<input id="setDireccion"></label>
+          <label>Web (opcional)<input id="setWeb"></label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>🧮 Fórmula por defecto</h3>
+        <p class="sub">Estos valores se usan en cada nueva cotización (igual los puedes cambiar caso a caso).</p>
+        <div class="campos">
+          <label>Símbolo moneda<input id="setSimbolo"></label>
+          <label>Merma %<input id="setMerma" type="number"></label>
+          <label>Gastos generales %<input id="setIndirectos" type="number"></label>
+          <label>Imprevistos %<input id="setImprevistos" type="number"></label>
+          <label>Margen %<input id="setMargen" type="number"></label>
+          <label>Valor hora<input id="setValorHora" type="number"></label>
+          <label>Despacho base<input id="setDespacho" type="number"></label>
+          <label class="check">Aplicar IVA por defecto<input id="setIvaActivo" type="checkbox"></label>
+          <label>IVA %<input id="setIvaPct" type="number"></label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>📄 Condiciones comerciales</h3>
+        <div class="campos">
+          <label>Validez (días)<input id="setValidez" type="number"></label>
+          <label>Tiempo fabricación (días)<input id="setTiempoFab" type="number"></label>
+          <label class="ancho-total">Forma de pago<textarea id="setFormaPago" rows="2"></textarea></label>
+          <label class="ancho-total">Condiciones<textarea id="setCondiciones" rows="2"></textarea></label>
+        </div>
+      </div>
+
+      <div class="acciones-rapidas">
+        <button class="btn btn--primario" id="btnGuardarAjustes" type="button">💾 Guardar ajustes</button>
+        <button class="btn btn--ligero" id="btnExportar" type="button">⬇️ Exportar datos (respaldo)</button>
+        <button class="btn btn--ligero" id="btnImportar" type="button">⬆️ Importar datos</button>
+        <input type="file" id="fileImportar" accept="application/json" hidden>
+        <button class="btn btn--peligro" id="btnReset" type="button">↺ Volver a valores de fábrica</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== AVISOS (toast) ===== -->
+  <div id="toast" class="toast" hidden></div>
+
+  <!-- ============================================================
+       DOCUMENTO DE COTIZACIÓN (lo que se imprime / guarda en PDF)
+       Está oculto en pantalla; solo aparece al imprimir.
+       ============================================================ -->
+  <div id="documento" class="documento"></div>
+
+  <!-- Scripts (en orden: datos → cálculo → app) -->
+  <script src="js/datos.js"></script>
+  <script src="js/calculo.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
