@@ -1,36 +1,39 @@
 <!DOCTYPE html>
 <!-- ============================================================
-     MAVIMUEBLES — Cotizador de muebles a medida
+     MAVIMUEBLES — Cotizador de muebles a medida (uso interno)
      ============================================================
      CÓMO FUNCIONA (resumen rápido):
      - Precios, herrajes y plantillas por defecto  →  js/datos.js
-     - La fórmula de cálculo                        →  js/calculo.js
+     - Fórmula, despiece, herrajes y horas          →  js/calculo.js
+     - Dibujo del mueble                            →  js/dibujo.js
      - La aplicación (pantallas y botones)          →  js/app.js
      - Colores y estilos                            →  css/estilos.css
-     Todo lo que edites dentro de la app se guarda en tu navegador.
-     No necesita instalar nada: se abre con doble clic.
+     Todo lo que se edita dentro de la app se guarda en el navegador.
+     "cotizador.html" es esta misma app en UN solo archivo: se
+     regenera con  node mavimuebles/generar-cotizador.js
      ============================================================ -->
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Cotizador profesional de muebles a medida — Mavimuebles.">
+  <meta name="description" content="Cotizador interno de muebles a medida — Mavimuebles.">
+  <meta name="robots" content="noindex">
   <title>Mavimuebles · Cotizador</title>
   <link rel="stylesheet" href="css/estilos.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪑</text></svg>">
 </head>
-<body>
+<body data-vista="cotizar">
 
   <!-- ===== ENCABEZADO ===== -->
   <header class="cab">
     <div class="cab__marca">
-      <span class="cab__logo">🪑</span>
+      <span class="cab__logo" aria-hidden="true">🪑</span>
       <div>
         <strong class="cab__nombre" id="cabNombre">Mavimuebles</strong>
         <span class="cab__eslogan" id="cabEslogan">Muebles a medida</span>
       </div>
     </div>
-    <nav class="cab__nav" id="nav">
+    <nav class="cab__nav" aria-label="Secciones">
       <button class="tab" data-vista="inicio">Inicio</button>
       <button class="tab tab--activa" data-vista="cotizar">Cotizar</button>
       <button class="tab" data-vista="historial">Historial</button>
@@ -43,19 +46,16 @@
 
     <!-- ============ VISTA: INICIO / PANEL ============ -->
     <section class="vista" id="vista-inicio" hidden>
-      <h1>Bienvenido a <span class="acento">Mavimuebles</span></h1>
-      <p class="sub">Calculadora y cotizador de muebles a medida. Presupuesta rápido, ordenado y sin perder plata.</p>
-
-      <div class="tarjetas" id="panelResumen"><!-- tarjetas de resumen (JS) --></div>
-
+      <h1>Panel de <span class="acento" id="inicioNombre">Mavimuebles</span></h1>
+      <p class="sub">Arma el mueble pieza por pieza y obtén un precio que no pierde plata.</p>
+      <div class="tarjetas" id="panelResumen"></div>
       <div class="acciones-rapidas">
-        <button class="btn btn--primario" data-vista="cotizar">+ Nueva cotización</button>
-        <button class="btn" data-vista="historial">Ver historial</button>
+        <button class="btn btn--primario" id="btnInicioNueva" type="button">+ Nueva cotización</button>
+        <button class="btn" data-vista="historial" type="button">Ver historial</button>
       </div>
-
       <div class="panel">
         <h3>Cotizaciones recientes</h3>
-        <div id="panelRecientes"><!-- JS --></div>
+        <div id="panelRecientes"></div>
       </div>
     </section>
 
@@ -63,144 +63,234 @@
     <section class="vista" id="vista-cotizar">
       <div class="cotizar-cabecera">
         <h1 id="tituloCotizar">Nueva cotización</h1>
-        <input type="hidden" id="cotId">
         <span class="pill" id="estadoActual" hidden></span>
+        <span class="sin-guardar" id="sinGuardar" hidden>● Cambios sin guardar</span>
+      </div>
+      <div class="banner" id="bannerPrecios" hidden>
+        <span id="bannerTexto"></span>
+        <button class="btn btn--mini" id="btnActualizarPrecios" type="button">Actualizar a precios actuales</button>
       </div>
 
       <div class="grid-cotizar">
-        <!-- Columna izquierda: formularios -->
         <div class="col-form">
 
-          <!-- Datos del cliente -->
-          <fieldset class="bloque">
-            <legend>1 · Datos del cliente</legend>
+          <!-- 1. Cliente -->
+          <details class="bloque" id="bloqueCliente" open>
+            <summary>1 · Cliente <span class="resumen-cliente" id="resumenCliente"></span></summary>
             <div class="campos">
-              <label>Nombre<input id="cliNombre" placeholder="Nombre del cliente"></label>
-              <label>Teléfono<input id="cliTelefono" placeholder="+56 9 ..."></label>
-              <label>Correo<input id="cliCorreo" placeholder="correo@ejemplo.cl"></label>
-              <label>Dirección<input id="cliDireccion" placeholder="Dirección / comuna"></label>
-              <label class="ancho-total">Observaciones del cliente
-                <textarea id="cliObs" rows="2" placeholder="Notas, referencias, etc."></textarea>
+              <label>Nombre<input id="cliNombre" data-c="nombre" placeholder="Nombre del cliente" autocomplete="off"></label>
+              <label>Teléfono<input id="cliTelefono" data-c="telefono" placeholder="+56 9 ..." inputmode="tel" autocomplete="off"></label>
+              <label>Correo<input id="cliCorreo" data-c="correo" placeholder="correo@ejemplo.cl" inputmode="email" autocomplete="off"></label>
+              <label>Dirección<input id="cliDireccion" data-c="direccion" placeholder="Dirección / comuna" autocomplete="off"></label>
+              <label class="ancho-total">Observaciones (salen en la cotización)
+                <textarea id="cliObs" data-c="observaciones" rows="2" placeholder="Notas, referencias, acuerdos..."></textarea>
               </label>
             </div>
-          </fieldset>
+          </details>
 
-          <!-- Datos del proyecto -->
-          <fieldset class="bloque">
-            <legend>2 · Proyecto</legend>
+          <!-- 2. Muebles de la cotización -->
+          <section class="bloque">
+            <h2 class="bloque__titulo">2 · Muebles de esta cotización</h2>
+            <div class="chips" id="chipsMuebles" role="tablist" aria-label="Muebles"></div>
+            <div class="fila-acciones">
+              <select id="nuevoTipo" aria-label="Tipo del mueble nuevo"></select>
+              <button class="btn btn--mini btn--primario" id="btnAddMueble" type="button">+ Agregar mueble</button>
+              <button class="btn btn--mini" id="btnDuplicarMueble" type="button">⧉ Duplicar</button>
+              <button class="btn btn--mini btn--peligro" id="btnEliminarMueble" type="button">Quitar</button>
+            </div>
+          </section>
+
+          <!-- 3. Mueble seleccionado -->
+          <section class="bloque bloque--mueble">
+            <h2 class="bloque__titulo">3 · <span id="tituloMueble">Mueble</span></h2>
+            <div class="segmentado" role="radiogroup" aria-label="Forma de cotizar este mueble">
+              <label><input type="radio" name="modo" value="constructor" data-m="modo"> 🧱 Constructor <small>(pieza por pieza)</small></label>
+              <label><input type="radio" name="modo" value="manual" data-m="modo"> ✍️ Manual <small>(materiales a mano)</small></label>
+            </div>
             <div class="campos">
-              <label>Tipo de mueble
-                <select id="proTipo"></select>
+              <label>Tipo de mueble<select id="mTipo" data-m="tipo"></select></label>
+              <label>Cantidad (unidades iguales)<input id="mCantidad" data-m="cantidad" type="number" min="1" step="1"></label>
+              <label class="ancho-total">Descripción para el cliente
+                <textarea id="mDescripcion" data-m="descripcion" rows="2" placeholder="Ej: Clóset 2 puertas correderas con cajonera y barra de colgar"></textarea>
               </label>
-              <label>Cantidad<input id="proCantidad" type="number" min="1" value="1"></label>
-              <label class="ancho-total">Descripción del trabajo
-                <textarea id="proDesc" rows="2" placeholder="Ej: Clóset 2 puertas con cajonera y barra de colgar"></textarea>
-              </label>
-              <label>Alto (cm)<input id="proAlto" type="number" min="0" placeholder="200"></label>
-              <label>Ancho (cm)<input id="proAncho" type="number" min="0" placeholder="120"></label>
-              <label>Profundidad (cm)<input id="proProf" type="number" min="0" placeholder="55"></label>
-              <label>Material principal
-                <select id="proMaterial"></select>
-              </label>
-              <label>Color / terminación<input id="proColor" placeholder="Ej: Blanco / Roble"></label>
-              <label>Dificultad
-                <select id="proDificultad"></select>
-              </label>
-              <label class="check">Requiere instalación
-                <input id="proInstalacion" type="checkbox" checked>
-              </label>
-              <label class="check">Requiere despacho
-                <input id="proDespacho" type="checkbox">
-              </label>
+              <label>Alto (cm)<input id="mAlto" data-m="alto" type="number" min="0" step="0.5"></label>
+              <label>Ancho (cm)<input id="mAncho" data-m="ancho" type="number" min="0" step="0.5"></label>
+              <label>Profundidad (cm)<input id="mProf" data-m="prof" type="number" min="0" step="0.5"></label>
+              <label>Color / terminación<input id="mColor" data-m="color" placeholder="Ej: Blanco / Roble" list="listaColores"></label>
+              <label>Dificultad<select id="mDificultad" data-m="dificultad"></select></label>
             </div>
-            <button class="btn btn--mini" id="btnPlantilla" type="button">⚡ Autocompletar desde plantilla</button>
-          </fieldset>
+            <datalist id="listaColores">
+              <option value="Blanco"><option value="Blanco / Roble"><option value="Roble"><option value="Nogal">
+              <option value="Grafito"><option value="Gris / Blanco"><option value="Wengue"><option value="Negro / Roble">
+            </datalist>
+            <p class="ayuda">💡 Escribe "Blanco / Roble" y el dibujo usa blanco para el cuerpo y roble para las puertas.</p>
+          </section>
 
-          <!-- Materiales -->
-          <fieldset class="bloque">
-            <legend>3 · Materiales</legend>
-            <div class="lineas" id="lineasMateriales"></div>
-            <div class="linea-acciones">
-              <button class="btn btn--mini" id="btnAddMaterial" type="button">+ Agregar material</button>
-              <button class="btn btn--mini" id="btnSugerirM2" type="button">📐 Estimar m² del mueble</button>
+          <!-- 4. Construcción (solo modo constructor) -->
+          <section class="bloque" id="bloqueConstructor">
+            <h2 class="bloque__titulo">4 · Construcción del mueble</h2>
+            <div class="dibujo-movil" id="dibujoMovil" aria-hidden="true"></div>
+
+            <h3 class="sub-titulo">Materiales</h3>
+            <div class="campos">
+              <label>Cuerpo (laterales, repisas)<select id="mMatCuerpo" data-m="matCuerpo"></select></label>
+              <label>Espesor del cuerpo (mm)<input id="mEspesor" data-m="espesor" type="number" min="3" max="40" step="1"></label>
+              <label>Frentes (puertas y cajones)<select id="mMatFrentes" data-m="matFrentes"></select></label>
+              <label>Fondo<select id="mMatFondo" data-m="matFondo"></select></label>
             </div>
-          </fieldset>
 
-          <!-- Herrajes -->
-          <fieldset class="bloque">
-            <legend>4 · Herrajes y accesorios</legend>
+            <h3 class="sub-titulo">Estructura</h3>
+            <div class="constructor">
+              <div class="paso"><span>Módulos (divisiones)</span>
+                <div class="stepper"><button type="button" data-step="modulos" data-d="-1" aria-label="Menos módulos">−</button><input id="mModulos" data-m="modulos" type="number" min="1" step="1" aria-label="Módulos"><button type="button" data-step="modulos" data-d="1" aria-label="Más módulos">+</button></div></div>
+              <div class="paso"><span>Repisas</span>
+                <div class="stepper"><button type="button" data-step="repisas" data-d="-1" aria-label="Menos repisas">−</button><input id="mRepisas" data-m="repisas" type="number" min="0" step="1" aria-label="Repisas"><button type="button" data-step="repisas" data-d="1" aria-label="Más repisas">+</button></div></div>
+              <div class="paso"><span>Cajones</span>
+                <div class="stepper"><button type="button" data-step="cajones" data-d="-1" aria-label="Menos cajones">−</button><input id="mCajones" data-m="cajones" type="number" min="0" step="1" aria-label="Cajones"><button type="button" data-step="cajones" data-d="1" aria-label="Más cajones">+</button></div></div>
+              <div class="paso"><span>Alto de cada cajón (cm)</span><input id="mAltoCajon" data-m="altoCajon" type="number" min="8" step="1"></div>
+              <div class="paso"><span>Puertas</span>
+                <div class="stepper"><button type="button" data-step="puertas" data-d="-1" aria-label="Menos puertas">−</button><input id="mPuertas" data-m="puertas" type="number" min="0" step="1" aria-label="Puertas"><button type="button" data-step="puertas" data-d="1" aria-label="Más puertas">+</button></div></div>
+              <div class="paso"><span>Tipo de puerta</span>
+                <select id="mTipoPuerta" data-m="tipoPuerta">
+                  <option value="ninguna">Sin puertas</option>
+                  <option value="batiente">Batientes (con bisagras)</option>
+                  <option value="corredera">Correderas (con riel)</option>
+                </select></div>
+              <div class="paso"><span>Barras de colgar</span>
+                <div class="stepper"><button type="button" data-step="barras" data-d="-1" aria-label="Menos barras">−</button><input id="mBarras" data-m="barras" type="number" min="0" step="1" aria-label="Barras"><button type="button" data-step="barras" data-d="1" aria-label="Más barras">+</button></div></div>
+              <div class="paso"><span>Base</span>
+                <select id="mBase" data-m="base">
+                  <option value="ninguna">Sin base</option>
+                  <option value="zocalo">Zócalo</option>
+                  <option value="patas">Patas regulables</option>
+                </select></div>
+              <div class="paso"><span>Bisagras</span><select id="mTipoBisagra" data-m="tipoBisagra"></select></div>
+              <div class="paso"><span>Correderas de cajón</span><select id="mTipoCorredera" data-m="tipoCorredera"></select></div>
+              <div class="paso paso--check"><label><input id="mCubierta" data-m="cubierta" type="checkbox"> Lleva cubierta</label>
+                <select id="mMatCubierta" data-m="matCubierta" aria-label="Material de la cubierta"></select></div>
+            </div>
+
+            <details class="despiece" id="detDespiece">
+              <summary>📋 Ver despiece (piezas a cortar) y consumo de material</summary>
+              <div id="tablaDespiece"></div>
+            </details>
+          </section>
+
+          <!-- 5. Herrajes -->
+          <section class="bloque">
+            <h2 class="bloque__titulo">5 · Herrajes y accesorios</h2>
+            <div id="herrajesAuto"></div>
+            <h3 class="sub-titulo">Agregados a mano</h3>
             <div class="lineas" id="lineasHerrajes"></div>
             <button class="btn btn--mini" id="btnAddHerraje" type="button">+ Agregar herraje</button>
-          </fieldset>
+          </section>
 
-          <!-- Mano de obra y costos -->
-          <fieldset class="bloque">
-            <legend>5 · Mano de obra y costos</legend>
-            <div class="campos">
-              <label>Horas de diseño<input id="hDiseno" type="number" min="0" step="0.5" value="0"></label>
-              <label>Horas de fabricación<input id="hFab" type="number" min="0" step="0.5" value="0"></label>
-              <label>Horas de instalación<input id="hInst" type="number" min="0" step="0.5" value="0"></label>
-              <label>Valor hora<input id="valorHora" type="number" min="0" step="500"></label>
-              <label>Despacho / traslado<input id="costoDespacho" type="number" min="0" value="0"></label>
-              <label>Otros costos<input id="costoOtros" type="number" min="0" value="0"></label>
-            </div>
-          </fieldset>
+          <!-- 6. Materiales adicionales -->
+          <section class="bloque">
+            <h2 class="bloque__titulo">6 · Materiales adicionales</h2>
+            <p class="ayuda" id="ayudaExtras">Espejos, vidrios, iluminación LED, piezas de madera maciza... La cantidad va en la unidad del material (planchas, m², metros o unidades). No se les suma merma.</p>
+            <div class="lineas" id="lineasMateriales"></div>
+            <button class="btn btn--mini" id="btnAddMaterial" type="button">+ Agregar material</button>
+          </section>
 
-          <!-- Parámetros de la fórmula -->
-          <fieldset class="bloque">
-            <legend>6 · Parámetros del presupuesto</legend>
-            <div class="campos">
-              <label>Merma %<input id="parMerma" type="number" min="0" step="1"></label>
-              <label>Gastos generales %<input id="parIndirectos" type="number" min="0" step="1"></label>
-              <label>Imprevistos %<input id="parImprevistos" type="number" min="0" step="1"></label>
-              <label>Margen de ganancia %<input id="parMargen" type="number" min="0" max="95" step="1"></label>
-              <label>Descuento %<input id="parDescuento" type="number" min="0" max="100" step="1"></label>
-              <label class="check">Aplicar IVA
-                <input id="parIvaActivo" type="checkbox">
-              </label>
+          <!-- 7. Mano de obra del mueble -->
+          <section class="bloque">
+            <h2 class="bloque__titulo">7 · Horas de trabajo de este mueble</h2>
+            <p class="ayuda" id="horasHint"></p>
+            <div class="campos campos--3">
+              <label>Diseño (h)<input id="mHDiseno" data-m="horas.diseno" type="number" min="0" step="0.25"></label>
+              <label>Fabricación (h)<input id="mHFab" data-m="horas.fab" type="number" min="0" step="0.25"></label>
+              <label>Instalación (h)<input id="mHInst" data-m="horas.inst" type="number" min="0" step="0.25"></label>
             </div>
-          </fieldset>
+            <button class="btn btn--mini" id="btnHorasSugeridas" type="button" hidden>↺ Volver a las horas sugeridas</button>
+          </section>
+
+          <!-- 8. Instalación, despacho y otros (toda la cotización) -->
+          <section class="bloque">
+            <h2 class="bloque__titulo">8 · Instalación, despacho y otros <small>(toda la cotización)</small></h2>
+            <div class="campos">
+              <label class="check"><input id="qInstalacion" data-q="requiereInstalacion" type="checkbox"> Requiere instalación</label>
+              <label class="check"><input id="qDespacho" data-q="requiereDespacho" type="checkbox"> Requiere despacho</label>
+              <label>Valor hora de trabajo<input id="pValorHora" data-p="valorHora" type="number" min="0" step="500"></label>
+              <label>Despacho / traslado<input id="qCostoDespacho" data-q="despacho" type="number" min="0" step="1000"></label>
+              <label class="ancho-total">Otros costos (estacionamiento, peajes, arriendo de andamio...)<input id="qOtros" data-q="otros" type="number" min="0" step="1000"></label>
+            </div>
+          </section>
+
+          <!-- 9. Parámetros -->
+          <details class="bloque" id="bloqueParametros">
+            <summary>9 · Parámetros del presupuesto <span class="resumen-cliente" id="resumenParametros"></span></summary>
+            <div class="campos">
+              <label>Merma %<input id="pMerma" data-p="mermaPct" type="number" min="0" step="1"></label>
+              <label>Gastos generales %<input id="pIndirectos" data-p="indirectosPct" type="number" min="0" step="1"></label>
+              <label>Imprevistos %<input id="pImprevistos" data-p="imprevistosPct" type="number" min="0" step="1"></label>
+              <label>Margen de ganancia %<input id="pMargen" data-p="margenPct" type="number" min="0" max="95" step="1"></label>
+              <label>Descuento %<input id="pDescuento" data-p="descuentoPct" type="number" min="0" max="100" step="1"></label>
+              <label class="check"><input id="pIva" data-p="ivaActivo" type="checkbox"> Aplicar IVA</label>
+              <label class="check ancho-total"><input id="pPlanchas" data-p="planchasCompletas" type="checkbox"> Cobrar planchas completas (lo que realmente se compra)</label>
+            </div>
+          </details>
         </div>
 
-        <!-- Columna derecha: desglose en vivo -->
-        <aside class="col-resultado">
-          <div class="resultado sticky" id="desglose"><!-- JS --></div>
+        <!-- Columna derecha: dibujo + precio en vivo -->
+        <aside class="col-resultado" id="colResultado">
+          <div class="panel-dibujo">
+            <div class="panel-dibujo__cab">
+              <strong id="dibujoTitulo">Vista frontal</strong>
+              <label class="check-mini"><input type="checkbox" id="verPuertas" checked> Ver puertas</label>
+            </div>
+            <div id="dibujo" class="dibujo-caja"></div>
+          </div>
+          <div id="alertas" class="alertas" aria-live="polite"></div>
+          <div class="resultado" id="desglose"></div>
           <div class="resultado-acciones">
             <button class="btn btn--primario btn--bloque" id="btnGuardar" type="button">💾 Guardar cotización</button>
             <button class="btn btn--bloque" id="btnImprimir" type="button">🖨️ Ver / Descargar PDF</button>
-            <button class="btn btn--bloque btn--ligero" id="btnNueva" type="button">＋ Limpiar y empezar otra</button>
+            <button class="btn btn--bloque btn--ligero" id="btnGuardarPlantilla" type="button">☆ Guardar este mueble como plantilla</button>
+            <button class="btn btn--bloque btn--ligero" id="btnNueva" type="button">＋ Nueva cotización</button>
           </div>
         </aside>
+      </div>
+
+      <!-- Barra fija con el total (solo en celular) -->
+      <div class="barra-total" id="barraTotal">
+        <div><small>Precio sugerido</small><strong id="barraTotalNum">$0</strong></div>
+        <button class="btn btn--mini" id="btnVerDetalle" type="button">Ver detalle ↓</button>
       </div>
     </section>
 
     <!-- ============ VISTA: HISTORIAL ============ -->
     <section class="vista" id="vista-historial" hidden>
       <h1>Historial de cotizaciones</h1>
-      <div class="filtros" id="filtrosEstado"></div>
-      <div id="listaHistorial"><!-- JS --></div>
+      <div class="filtros">
+        <input id="busqueda" type="search" placeholder="Buscar por cliente, teléfono, mueble o N°" aria-label="Buscar cotización">
+        <div id="filtrosEstado" class="filtros__estados"></div>
+      </div>
+      <div id="listaHistorial"></div>
     </section>
 
     <!-- ============ VISTA: BASES ============ -->
     <section class="vista" id="vista-bases" hidden>
       <h1>Bases de datos</h1>
-      <p class="sub">Edita aquí tus materiales, herrajes y plantillas. Los cambios se guardan en tu navegador.</p>
+      <p class="sub">Tus precios reales. Los cambios se guardan solos y se usan en las cotizaciones nuevas (las ya guardadas conservan sus precios).</p>
 
       <div class="panel">
         <h3>📦 Materiales</h3>
-        <div id="tablaMateriales"></div>
+        <p class="ayuda">Para planchas, ingresa el precio de la plancha y su tamaño: la app calcula el valor del m² y cuántas planchas comprar.</p>
+        <div class="tabla-scroll" id="tablaMateriales"></div>
         <button class="btn btn--mini" id="btnAddBaseMaterial" type="button">+ Agregar material</button>
       </div>
 
       <div class="panel">
         <h3>🔩 Herrajes y accesorios</h3>
-        <div id="tablaHerrajes"></div>
+        <div class="tabla-scroll" id="tablaHerrajes"></div>
         <button class="btn btn--mini" id="btnAddBaseHerraje" type="button">+ Agregar herraje</button>
       </div>
 
       <div class="panel">
-        <h3>📐 Plantillas por tipo de mueble</h3>
-        <div id="tablaPlantillas"></div>
+        <h3>📐 Plantillas de muebles</h3>
+        <p class="ayuda">Cada plantilla es un mueble típico que se carga de una vez al elegir el tipo. Para crear una nueva, arma el mueble en "Cotizar" y usa "☆ Guardar este mueble como plantilla".</p>
+        <div class="tabla-scroll" id="tablaPlantillas"></div>
       </div>
     </section>
 
@@ -211,63 +301,98 @@
       <div class="panel">
         <h3>🏷️ Datos del negocio (salen en la cotización)</h3>
         <div class="campos">
-          <label>Nombre<input id="setNombre"></label>
-          <label>Eslogan<input id="setEslogan"></label>
-          <label>Teléfono<input id="setTelefono"></label>
-          <label>Correo<input id="setCorreo"></label>
-          <label>Dirección<input id="setDireccion"></label>
-          <label>Web (opcional)<input id="setWeb"></label>
+          <label>Nombre<input data-cfg="empresa.nombre"></label>
+          <label>Eslogan<input data-cfg="empresa.eslogan"></label>
+          <label>Teléfono<input data-cfg="empresa.telefono"></label>
+          <label>Correo<input data-cfg="empresa.correo"></label>
+          <label>Dirección<input data-cfg="empresa.direccion"></label>
+          <label>Web / Instagram<input data-cfg="empresa.web"></label>
         </div>
       </div>
 
       <div class="panel">
-        <h3>🧮 Fórmula por defecto</h3>
-        <p class="sub">Estos valores se usan en cada nueva cotización (igual los puedes cambiar caso a caso).</p>
+        <h3>🧮 Fórmula por defecto (cotizaciones nuevas)</h3>
         <div class="campos">
-          <label>Símbolo moneda<input id="setSimbolo"></label>
-          <label>Merma %<input id="setMerma" type="number"></label>
-          <label>Gastos generales %<input id="setIndirectos" type="number"></label>
-          <label>Imprevistos %<input id="setImprevistos" type="number"></label>
-          <label>Margen %<input id="setMargen" type="number"></label>
-          <label>Valor hora<input id="setValorHora" type="number"></label>
-          <label>Despacho base<input id="setDespacho" type="number"></label>
-          <label class="check">Aplicar IVA por defecto<input id="setIvaActivo" type="checkbox"></label>
-          <label>IVA %<input id="setIvaPct" type="number"></label>
+          <label>Símbolo moneda<input data-cfg="monedaSimbolo"></label>
+          <label>Valor hora de trabajo<input data-cfg="valorHora" type="number"></label>
+          <label>Merma %<input data-cfg="mermaPct" type="number"></label>
+          <label>Gastos generales %<input data-cfg="indirectosPct" type="number" id="cfgIndirectos"></label>
+          <label>Imprevistos %<input data-cfg="imprevistosPct" type="number"></label>
+          <label>Margen %<input data-cfg="margenPct" type="number"></label>
+          <label>Margen mínimo % (avisa si bajas de aquí)<input data-cfg="margenMinimoPct" type="number"></label>
+          <label>Despacho base (se propone al marcar despacho)<input data-cfg="despachoBase" type="number"></label>
+          <label>Insumos y desgaste de herramientas, por plancha<input data-cfg="insumosPorPlancha" type="number"></label>
+          <label>IVA %<input data-cfg="ivaPct" type="number"></label>
+          <label class="check"><input data-cfg="ivaActivo" type="checkbox"> Aplicar IVA por defecto</label>
+          <label class="check"><input data-cfg="planchasCompletas" type="checkbox"> Cobrar planchas completas por defecto</label>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>🔧 Calculadora de gastos generales (¿qué % poner?)</h3>
+        <p class="ayuda">Suma lo que el taller gasta cada mes aunque no fabrique nada, incluido el desgaste de las herramientas. Se divide por el costo directo de lo que se fabrica en un mes normal (materiales + mano de obra).</p>
+        <div class="campos campos--3" id="calcGastos">
+          <label>Arriendo del taller<input data-gg="arriendo" type="number" min="0"></label>
+          <label>Luz, agua, gas<input data-gg="servicios" type="number" min="0"></label>
+          <label>Teléfono e internet<input data-gg="telefono" type="number" min="0"></label>
+          <label>Vehículo y combustible<input data-gg="vehiculo" type="number" min="0"></label>
+          <label>Contador, patente, otros<input data-gg="otros" type="number" min="0"></label>
+          <label>Valor total de tus herramientas<input data-gg="herramientasValor" type="number" min="0"></label>
+          <label>Vida útil de las herramientas (meses)<input data-gg="herramientasMeses" type="number" min="1"></label>
+          <label class="ancho-total">Costo directo de un mes normal (materiales + mano de obra)<input data-gg="costoDirectoMes" type="number" min="0"></label>
+        </div>
+        <div class="resultado-gg" id="resultadoGastos"></div>
+      </div>
+
+      <div class="panel">
+        <h3>🧱 Constructor: tapacantos y tiempos estándar</h3>
+        <div class="campos">
+          <label>Tapacanto del cuerpo<select data-cfg="tapacantoCuerpoId" id="cfgTapaCuerpo"></select></label>
+          <label>Tapacanto de puertas y frentes<select data-cfg="tapacantoFrenteId" id="cfgTapaFrente"></select></label>
+          <label>Altura del zócalo (cm)<input data-cfg="alturaZocalo" type="number"></label>
+        </div>
+        <p class="ayuda">Horas estándar (se multiplican por la dificultad y la cantidad). Ajústalas según lo que realmente demoran en el taller.</p>
+        <div class="campos campos--3">
+          <label>Diseño base por mueble (h)<input data-cfg="tiempos.disenoBase" type="number" step="0.25"></label>
+          <label>Diseño por módulo (h)<input data-cfg="tiempos.disenoPorModulo" type="number" step="0.25"></label>
+          <label>Fabricación base por mueble (h)<input data-cfg="tiempos.fabBase" type="number" step="0.25"></label>
+          <label>Minutos por pieza del cuerpo<input data-cfg="tiempos.minPorPieza" type="number" step="1"></label>
+          <label>Horas por cajón<input data-cfg="tiempos.porCajon" type="number" step="0.25"></label>
+          <label>Horas por puerta batiente<input data-cfg="tiempos.porPuerta" type="number" step="0.25"></label>
+          <label>Horas sistema corredera<input data-cfg="tiempos.correderas" type="number" step="0.25"></label>
+          <label>Instalación base por mueble (h)<input data-cfg="tiempos.instBase" type="number" step="0.25"></label>
+          <label>Instalación por módulo (h)<input data-cfg="tiempos.instPorModulo" type="number" step="0.25"></label>
         </div>
       </div>
 
       <div class="panel">
         <h3>📄 Condiciones comerciales</h3>
         <div class="campos">
-          <label>Validez (días)<input id="setValidez" type="number"></label>
-          <label>Tiempo fabricación (días)<input id="setTiempoFab" type="number"></label>
-          <label class="ancho-total">Forma de pago<textarea id="setFormaPago" rows="2"></textarea></label>
-          <label class="ancho-total">Condiciones<textarea id="setCondiciones" rows="2"></textarea></label>
+          <label>Validez (días)<input data-cfg="validezDias" type="number"></label>
+          <label>Tiempo de fabricación (días hábiles)<input data-cfg="tiempoFabricacionDias" type="number"></label>
+          <label class="ancho-total">Forma de pago<textarea data-cfg="formaPago" rows="2"></textarea></label>
+          <label class="ancho-total">Condiciones<textarea data-cfg="condiciones" rows="2"></textarea></label>
         </div>
       </div>
 
       <div class="acciones-rapidas">
         <button class="btn btn--primario" id="btnGuardarAjustes" type="button">💾 Guardar ajustes</button>
-        <button class="btn btn--ligero" id="btnExportar" type="button">⬇️ Exportar datos (respaldo)</button>
-        <button class="btn btn--ligero" id="btnImportar" type="button">⬆️ Importar datos</button>
+        <button class="btn btn--ligero" id="btnExportar" type="button">⬇️ Descargar respaldo</button>
+        <button class="btn btn--ligero" id="btnImportar" type="button">⬆️ Cargar respaldo</button>
         <input type="file" id="fileImportar" accept="application/json" hidden>
-        <button class="btn btn--peligro" id="btnReset" type="button">↺ Volver a valores de fábrica</button>
+        <button class="btn btn--peligro" id="btnReset" type="button">↺ Borrar todo y volver a fábrica</button>
       </div>
     </section>
   </main>
 
-  <!-- ===== AVISOS (toast) ===== -->
-  <div id="toast" class="toast" hidden></div>
+  <div id="toast" class="toast" role="status" hidden></div>
 
-  <!-- ============================================================
-       DOCUMENTO DE COTIZACIÓN (lo que se imprime / guarda en PDF)
-       Está oculto en pantalla; solo aparece al imprimir.
-       ============================================================ -->
+  <!-- Documento para imprimir / PDF (oculto en pantalla) -->
   <div id="documento" class="documento"></div>
 
-  <!-- Scripts (en orden: datos → cálculo → app) -->
   <script src="js/datos.js"></script>
   <script src="js/calculo.js"></script>
+  <script src="js/dibujo.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
